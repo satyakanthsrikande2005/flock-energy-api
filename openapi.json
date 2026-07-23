@@ -122,18 +122,6 @@
           }
         }
       }
-    },
-    "responses": {
-      "UnauthorizedError": {
-        "description": "Authentication failed",
-        "content": {
-          "application/json": {
-            "schema": {
-              "$ref": "#/components/schemas/ErrorResponse"
-            }
-          }
-        }
-      }
     }
   },
   "paths": {}

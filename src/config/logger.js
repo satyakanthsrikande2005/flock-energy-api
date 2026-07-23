@@ -23,19 +23,35 @@ const logFormat = winston.format.combine(
   })
 );
 
+const transports = [
+  new winston.transports.Console({
+    format: winston.format.combine(winston.format.colorize(), logFormat),
+  }),
+];
+
+if (!process.env.VERCEL) {
+  try {
+    const fs = require('fs');
+    const logsDir = path.join(process.cwd(), 'logs');
+    if (!fs.existsSync(logsDir)) {
+      fs.mkdirSync(logsDir, { recursive: true });
+    }
+    transports.push(
+      new winston.transports.File({
+        filename: path.join(logsDir, 'app.log'),
+        maxsize: 5 * 1024 * 1024,
+        maxFiles: 5,
+      })
+    );
+  } catch (e) {
+    // Ignore log file creation errors on read-only filesystems
+  }
+}
+
 const logger = winston.createLogger({
   level: logLevel,
   format: logFormat,
-  transports: [
-    new winston.transports.Console({
-      format: winston.format.combine(winston.format.colorize(), logFormat),
-    }),
-    new winston.transports.File({
-      filename: path.join(process.cwd(), 'logs', 'app.log'),
-      maxsize: 5 * 1024 * 1024,
-      maxFiles: 5,
-    }),
-  ],
+  transports,
 });
 
 module.exports = logger;
